@@ -17,3 +17,9 @@ Also noticed `GET /tasks` can't do status + pagination together. If you pass bot
 - Is in memory storage actually okay? Everything disappears on restart, so I am guessing a real DB is planned but I would want to confirm.
 - Are there rules for status changes? Like can a `done` task go back to `todo`, or should that be blocked?
 - Do we need any auth on this at all? Right now anyone can create or delete anything, which feels risky for prod.
+
+### How I built the assign endpoint
+
+`PATCH /tasks/:id/assign` with `{ "assignee": "name" }`. New tasks start with `assignee: null`.
+
+Decisions I made: empty string or missing assignee gives 400, since assigning nobody doesn't make sense. I trim whitespace so `"  Bob  "` becomes `"Bob"`. If a task is already assigned I return 409 instead of overwriting, because silently stealing someone's task felt wrong. And 404 if the id doesn't exist, same as the other routes.
